@@ -1,0 +1,6 @@
+lp,nr_id,nazwa_SGR,gotowosc_rozkaz,kw,kp_km,lat,long
+1,0500101,SGRW-JRG10,A,KW PSP w Łodzi,KM PSP w Łodzi,51.7592,19.4559
+2,0500101,SGRW-JRG6,A,KW PSP w Łodzi,KM PSP w Łodzi,51.7789,19.4891
+3,0600101,SGRW-JRG3,AB,KW PSP w Poznaniu,KM PSP w Poznaniu,52.4080,16.9335
+4,0800101,SGRW-JRG6,ABC,KW PSP w Warszawie,KM PSP w Warszawie,52.2297,21.0122
+5,0900101,SGRW-JRG9,ABC,KW PSP w Gdańsku,KM PSP w Gdańsku,54.3520,18.6466 
