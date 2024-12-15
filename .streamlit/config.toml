@@ -1,0 +1,11 @@
+[theme]
+base="light"
+
+[server]
+runOnSave = true
+
+[mapbox]
+token = ""
+
+[browser]
+gatherUsageStats = false 
