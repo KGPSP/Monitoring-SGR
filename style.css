@@ -1,0 +1,219 @@
+/* Główne style */
+.main {
+    padding: 0;
+}
+
+/* Style dla opisu systemu */
+.system-description {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    margin: 1rem 0 2rem 0;
+    border-left: 4px solid #8f0202;
+}
+
+.system-description p {
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.system-description ul {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.system-description li {
+    color: #333;
+    line-height: 1.6;
+    margin-bottom: 0.5rem;
+}
+
+/* Ukrycie tylko dekoracji Streamlit */
+div[data-testid="stDecoration"] {
+    display: none !important;
+}
+
+/* Style dla nagłówków */
+h1 {
+    color: #8f0202;
+    padding: 1rem 0;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+}
+
+h2, h3 {
+    color: #8f0202;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+/* Style dla menu bocznego */
+.css-1d391kg {
+    background-color: #ffffff;
+    padding: 1rem;
+}
+
+/* Style dla sekcji */
+.section {
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    background-color: #ffffff;
+    border: 1px solid #f0f2f6;
+    border-radius: 0.5rem;
+}
+
+/* Style dla nagłówków sekcji */
+.section-header {
+    color: #8f0202;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #8f0202;
+}
+
+/* Style dla pól formularza */
+.form-field {
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+}
+
+.form-field label {
+    font-weight: 600;
+    color: #8f0202;
+}
+
+/* Style dla stopki */
+.footer {
+    background-color: #f8f9fa;
+    padding: 2rem;
+    text-align: center;
+    margin-top: 2rem;
+    color: #666;
+}
+
+/* Logo PSP w menu */
+.sidebar-logo {
+    text-align: center;
+    padding: 1rem 0;
+    margin-bottom: 1.5rem;
+}
+
+/* Style dla mapy */
+.folium-map {
+    border-radius: 0.5rem;
+    border: 1px solid #f0f2f6;
+    margin: 1rem 0;
+}
+
+/* Style dla legendy mapy */
+.map-legend {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+}
+
+/* Style dla przycisków */
+.stButton>button {
+    width: 100%;
+    background-color: #8f0202;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+.stButton>button:hover {
+    background-color: #cc0000;
+}
+
+/* Style dla tabel */
+.dataframe {
+    width: 100%;
+    margin: 1rem 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid #f0f2f6;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.dataframe th {
+    background-color: #8f0202;
+    color: white;
+    padding: 0.75rem;
+    font-weight: 600;
+    border: none;
+}
+
+.dataframe td {
+    padding: 0.75rem;
+    border-top: 1px solid #f0f2f6;
+    background-color: white;
+}
+
+/* Style dla selectbox i number input */
+div.stSelectbox > div[data-baseweb="select"] {
+    border: 1px solid #f0f2f6;
+    border-radius: 0.5rem;
+    background-color: white;
+}
+
+div.stNumberInput > div {
+    border: 1px solid #f0f2f6;
+    border-radius: 0.5rem;
+    background-color: white;
+}
+
+/* Style dla checkboxów */
+.stCheckbox {
+    margin: 0.75rem 0;
+}
+
+.stCheckbox > label > span {
+    color: #8f0202;
+    font-weight: 500;
+}
+
+/* Marginesy dla elementów */
+.element-container {
+    margin: 0.5rem 0;
+}
+
+.stMarkdown {
+    margin: 0.5rem 0;
+}
+
+/* Style dla alertów */
+.stAlert {
+    background-color: #ffe6e6;
+    color: #8f0202;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    border-left: 4px solid #8f0202;
+}
+
+/* Style dla success message */
+div[data-testid="stText"] {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin: 0.5rem 0;
+}
+
+/* Hover efekty dla interaktywnych elementów */
+.stSelectbox:hover,
+.stNumberInput:hover,
+.stCheckbox:hover {
+    opacity: 0.9;
+}
+
+/* Zmniejszenie odstępów */
+div[data-testid="stVerticalBlock"] {
+    gap: 0.5rem !important;
+} 

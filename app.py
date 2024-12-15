@@ -3,22 +3,22 @@ import pandas as pd
 import folium
 from streamlit_folium import folium_static
 
-# Funkcja do wyświetlania zawartości pliku markdown
-def load_markdown_file(markdown_file):
-    with open(markdown_file, 'r', encoding='utf-8') as file:
-        return file.read()
+def load_css():
+    with open('style.css') as f:
+        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
 def show_footer():
-    st.markdown("---")
-    col1, col2, col3 = st.columns([1,2,1])
-    with col2:
-        st.markdown("""
-        <div style='text-align: center; color: grey;'>
+    st.markdown("""
+        <div class="footer">
             <p>© 2024 Komenda Główna Państwowej Straży Pożarnej</p>
             <p>Biuro Informatyki i Łączności</p>
             <p>ul. Podchorążych 38, 00-463 Warszawa</p>
         </div>
-        """, unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
+
+def load_markdown_file(markdown_file):
+    with open(markdown_file, 'r', encoding='utf-8') as file:
+        return file.read()
 
 def get_minimalne_wymagania(poziom):
     """Zwraca minimalne wymagania dla danego poziomu gotowości"""
@@ -194,16 +194,57 @@ def pokaz_tabele_wymagan():
     )
 
 def main():
-    st.sidebar.title("Menu Główne")
-    menu_option = st.sidebar.radio("Wybierz sekcję:", 
+    # Wczytanie stylów CSS
+    load_css()
+    
+    # Logo i menu w pasku bocznym
+    st.sidebar.markdown("""
+        <div class="sidebar-logo" style="background: transparent;">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b4/Logo-psp-nowe-wrzesien-2017.svg" 
+                 width="60" 
+                 style="background: transparent; mix-blend-mode: multiply;">
+            <h4 style='margin-top:1rem;'>System Monitorowania<br>SGRW-N</h4>
+        </div>
+    """, unsafe_allow_html=True)
+
+    menu_option = st.sidebar.radio("", 
                                  ["Monitoring SGRW-N", 
                                   "Algorytmika SGRW-N",
                                   "Autorzy"])
     
+    # Link do GitHub
+    st.sidebar.markdown("""
+        <div style='text-align: center; margin-top: 2rem;'>
+            <a href='https://github.com/KGPSP/Monitoring-SGR' target='_blank' 
+               style='text-decoration: none; color: #666;'>
+                <img src='https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png' 
+                     width='30px' style='margin-bottom: 0.5rem;'>
+                <br>
+                Kod źródłowy na GitHub
+            </a>
+        </div>
+    """, unsafe_allow_html=True)
+
     if menu_option == "Monitoring SGRW-N":
-        st.title("System Określania Poziomu Gotowości SGRW-N")
+        st.markdown('<h1>System Określania Poziomu Gotowości SGRW-N</h1>', unsafe_allow_html=True)
         
-        # Inicjalizacja wartości w sesji
+        # Dodanie opisu systemu
+        st.markdown("""
+            <div class="system-description">
+                <p>System służy do monitorowania i określania poziomu gotowości operacyjnej Specjalistycznych Grup Ratownictwa Wodno-Nurkowego (SGRW-N).
+                Umożliwia weryfikację spełnienia wymagań dla poszczególnych poziomów gotowości (A, AB, ABC, ABCchem) poprzez analizę:</p>
+                <ul>
+                    <li>Stanu osobowego (ratownicy, nurkowie)</li>
+                    <li>Dostępnego sprzętu (pojazdy, łodzie)</li>
+                    <li>Czasu alarmowania</li>
+                    <li>Dodatkowych wymagań specjalistycznych</li>
+                </ul>
+                <p>Program automatycznie określa aktualny poziom gotowości grupy na podstawie wprowadzonych danych
+                i porównuje go z poziomem wymaganym zgodnie z rozkazem.</p>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # Inicjalizacja sesji (bez zmian)
         if 'liczba_ratownikow' not in st.session_state:
             st.session_state.liczba_ratownikow = 0
         if 'liczba_mlodszych_nurkow' not in st.session_state:
@@ -242,30 +283,33 @@ def main():
             if row['kp_km'] not in kw_kp_dict[row['kw']]:
                 kw_kp_dict[row['kw']].append(row['kp_km'])
 
-        # Wybór KW i KP/KM
-        st.header("Wybór jednostki:")
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            selected_kw = st.selectbox("Wybierz Komendę Wojewódzką:", 
-                                     options=[''] + list(kw_kp_dict.keys()))
+        # Sekcja wyboru jednostki
+        with st.container():
+            st.markdown('<div class="section">', unsafe_allow_html=True)
+            st.markdown('<h2 class="section-header">Wybór jednostki</h2>', unsafe_allow_html=True)
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                selected_kw = st.selectbox("Komenda Wojewódzka:", 
+                                         options=[''] + list(kw_kp_dict.keys()))
+            with col2:
+                selected_kp_km = st.selectbox("Komenda Miejska/Powiatowa:", 
+                                            options=[''] + (kw_kp_dict[selected_kw] if selected_kw else []))
+            
+            # Utworzenie listy dostępnych nazw grup dla wybranego KW i KM/KP
+            available_groups = []
+            if selected_kw and selected_kp_km:
+                available_groups = df_grupy[
+                    (df_grupy['kw'] == selected_kw) & 
+                    (df_grupy['kp_km'] == selected_kp_km)
+                ]['nazwa_SGR'].tolist()
+            
+            with col3:
+                selected_nazwa = st.selectbox("Nazwa grupy:", 
+                                            options=[''] + available_groups)
+            st.markdown('</div>', unsafe_allow_html=True)
         
-        with col2:
-            selected_kp_km = st.selectbox("Wybierz Komendę Miejską/Powiatową:", 
-                                        options=[''] + (kw_kp_dict[selected_kw] if selected_kw else []))
-        
-        # Utworzenie listy dostępnych nazw grup dla wybranego KW i KM/KP
-        available_groups = []
-        if selected_kw and selected_kp_km:
-            available_groups = df_grupy[
-                (df_grupy['kw'] == selected_kw) & 
-                (df_grupy['kp_km'] == selected_kp_km)
-            ]['nazwa_SGR'].tolist()
-        
-        with col3:
-            selected_nazwa = st.selectbox("Wybierz nazwę grupy:", 
-                                        options=[''] + available_groups)
-
-        # Wyświetlenie informacji o grupie i ustawienie minimalnych wymagań
+        # Sekcja informacji o grupie
         if selected_kw and selected_kp_km and selected_nazwa:
             grupa = df_grupy[
                 (df_grupy['kw'] == selected_kw) & 
@@ -273,49 +317,68 @@ def main():
                 (df_grupy['nazwa_SGR'] == selected_nazwa)
             ]
             if not grupa.empty:
-                st.markdown("### Informacje o grupie:")
+                st.markdown('<div class="section">', unsafe_allow_html=True)
+                st.markdown('<h2 class="section-header">Informacje o grupie</h2>', unsafe_allow_html=True)
                 
-                # Wyświetlenie numeru ID i poziomu gotowości
                 col1, col2 = st.columns(2)
                 with col1:
-                    st.text_input("Numer identyfikacyjny grupy:", 
+                    st.markdown('<div class="form-field">', unsafe_allow_html=True)
+                    st.text_input("Numer identyfikacyjny:", 
                                 value=str(grupa.iloc[0]['nr_id']), 
                                 disabled=True)
-                    st.session_state.nr_id = str(grupa.iloc[0]['nr_id'])
+                    st.markdown('</div>', unsafe_allow_html=True)
                 
                 with col2:
-                    st.text_input("Poziom gotowości wskazany rozkazem:", 
+                    st.markdown('<div class="form-field">', unsafe_allow_html=True)
+                    st.text_input("Poziom gotowości:", 
                                  value=grupa.iloc[0]['gotowosc_rozkaz'], 
                                  disabled=True)
+                    st.markdown('</div>', unsafe_allow_html=True)
                 
-                # Wyświetlenie mapy z zasięgami czasowymi
-                st.markdown("### Mapa zasięgu czasowego")
-                st.markdown("Okręgi pokazują szacunkowy zasięg dojazdu dla wozu strażackiego:")
-                st.markdown("- Czerwony: 5 minut")
-                st.markdown("- Pomarańczowy: 10 minut")
-                st.markdown("- Żółto-pomarańczowy: 15 minut")
-                st.markdown("- Żółto-pomarańczowy jasny: 25 minut")
-                st.markdown("- Żółty: 60 minut")
+                # Mapa
+                st.markdown('<h3>Mapa zasięgu czasowego</h3>', unsafe_allow_html=True)
+                col1, col2 = st.columns([3, 1])
+                with col1:
+                    mapa = create_time_radius_map(
+                        grupa.iloc[0]['lat'],
+                        grupa.iloc[0]['long'],
+                        grupa.iloc[0]['nazwa_SGR']
+                    )
+                    folium_static(mapa)
                 
-                # Utworzenie i wyświetlenie mapy
-                mapa = create_time_radius_map(
-                    grupa.iloc[0]['lat'],
-                    grupa.iloc[0]['long'],
-                    grupa.iloc[0]['nazwa_SGR']
-                )
-                folium_static(mapa)
+                with col2:
+                    st.markdown("""
+                        <div class="map-legend">
+                            <h4>Legenda</h4>
+                            <p>🔴 5 minut</p>
+                            <p>🟠 10 minut</p>
+                            <p>🟡 15 minut</p>
+                            <p>🟨 25 minut</p>
+                            <p>💛 60 minut</p>
+                        </div>
+                    """, unsafe_allow_html=True)
                 
-                # Pobranie minimalnych wymagań dla poziomu
+                st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Sekcja wprowadzania danych
+        st.markdown('<div class="section">', unsafe_allow_html=True)
+        st.markdown('<h2 class="section-header">Wprowadź dane</h2>', unsafe_allow_html=True)
+        
+        # Pobranie minimalnych wymagań dla wybranej grupy
+        min_wymagania = None
+        if selected_kw and selected_kp_km and selected_nazwa:
+            grupa = df_grupy[
+                (df_grupy['kw'] == selected_kw) & 
+                (df_grupy['kp_km'] == selected_kp_km) & 
+                (df_grupy['nazwa_SGR'] == selected_nazwa)
+            ]
+            if not grupa.empty:
                 min_wymagania = get_minimalne_wymagania(grupa.iloc[0]['gotowosc_rozkaz'])
-                if min_wymagania and st.button("Uzupełnij minimalne wymagania"):
-                    for key, value in min_wymagania.items():
-                        setattr(st.session_state, key, value)
         
-        st.header("Wprowadź dane:")
-        
-        # Dane podstawowe
         col1, col2, col3 = st.columns(3)
         with col1:
+            st.markdown('<h3>Stan osobowy</h3>', unsafe_allow_html=True)
+            st.markdown('<div class="form-field">', unsafe_allow_html=True)
             liczba_ratownikow = st.number_input("Liczba ratowników", 
                                               min_value=0, 
                                               value=st.session_state.liczba_ratownikow)
@@ -328,8 +391,6 @@ def main():
             liczba_nurkow_kierujacych = st.number_input("Liczba nurków kierujących", 
                                                         min_value=0, 
                                                         value=st.session_state.liczba_nurkow_kierujacych)
-        
-        with col2:
             czy_sternik = st.checkbox("Czy jest dostępny sternik?", 
                                     value=st.session_state.czy_sternik)
             czy_strazak_logistyk = st.checkbox("Czy jest dostępny strażak logistyk?", 
@@ -339,8 +400,9 @@ def main():
             czas_alarmowania = st.number_input("Czas alarmowania (minuty)", 
                                              min_value=0, 
                                              value=st.session_state.czas_alarmowania)
-
-        with col3:
+            st.markdown('</div>', unsafe_allow_html=True)
+        
+        with col2:
             liczba_slrr = st.number_input("Liczba pojazdów SLRR/SLRW", 
                                         min_value=0, 
                                         value=st.session_state.liczba_slrr)
@@ -350,84 +412,85 @@ def main():
             liczba_srchem = st.number_input("Liczba pojazdów SRChem", 
                                           min_value=0, 
                                           value=st.session_state.liczba_srchem)
-
-        # Aktualizacja wartości w sesji
-        st.session_state.liczba_ratownikow = liczba_ratownikow
-        st.session_state.liczba_mlodszych_nurkow = liczba_mlodszych_nurkow
-        st.session_state.liczba_nurkow = liczba_nurkow
-        st.session_state.liczba_nurkow_kierujacych = liczba_nurkow_kierujacych
-        st.session_state.czy_sternik = czy_sternik
-        st.session_state.czy_strazak_logistyk = czy_strazak_logistyk
-        st.session_state.czy_wyposazenie_abc_chem = czy_wyposazenie_abc_chem
-        st.session_state.czas_alarmowania = czas_alarmowania
-        st.session_state.liczba_slrr = liczba_slrr
-        st.session_state.liczba_lodzi = liczba_lodzi
-        st.session_state.liczba_srchem = liczba_srchem
-
-        if st.button("Sprawdź poziom gotowości"):
-            poziomy = []
-            
-            # Sprawdzanie kolejnych poziomów
-            if sprawdz_poziom_A(liczba_ratownikow, liczba_mlodszych_nurkow, 
-                               czy_sternik, czy_strazak_logistyk, liczba_slrr, liczba_lodzi):
-                poziomy.append("A")
-                
-            if sprawdz_poziom_AB(liczba_ratownikow, liczba_mlodszych_nurkow,
-                                liczba_nurkow_kierujacych, czy_sternik, czy_strazak_logistyk,
-                                liczba_slrr, liczba_lodzi):
-                poziomy.append("AB")
-                
-            if sprawdz_poziom_ABC(liczba_ratownikow, liczba_mlodszych_nurkow, liczba_nurkow,
-                                 liczba_nurkow_kierujacych, czy_sternik, czy_strazak_logistyk,
-                                 czas_alarmowania, liczba_slrr, liczba_lodzi):
-                poziomy.append("ABC")
-                
-            if sprawdz_poziom_ABCchem(liczba_ratownikow, liczba_mlodszych_nurkow, liczba_nurkow,
-                                     liczba_nurkow_kierujacych, czy_sternik, czy_strazak_logistyk,
-                                     czas_alarmowania, czy_wyposazenie_abc_chem, liczba_slrr,
-                                     liczba_lodzi, liczba_srchem):
-                poziomy.append("ABCchem")
-
-            if poziomy:
-                st.success(f"Grupa spełnia wymagania dla poziomów: {', '.join(poziomy)}")
-                st.info(f"Najwyższy osiągnięty poziom gotowości: {poziomy[-1]}")
-                
-                # Porównanie z gotowością wg rozkazu
-                if selected_kw and selected_kp_km:
-                    grupa = df_grupy[(df_grupy['kw'] == selected_kw) & (df_grupy['kp_km'] == selected_kp_km)]
-                    if not grupa.empty:
-                        gotowosc_rozkaz = grupa.iloc[0]['gotowosc_rozkaz']
-                        if poziomy[-1] == gotowosc_rozkaz:
-                            st.success("✅ Grupa utrzymuje poziom gotowości zgodny z rozkazem")
-                        elif poziomy[-1] > gotowosc_rozkaz:
-                            st.success("✅ Grupa przekracza wymagany poziom gotowości")
-                        else:
-                            st.warning("⚠️ Grupa nie osiąga wymaganego poziomu gotowości")
-            else:
-                st.error("Grupa nie spełnia wymagań żadnego poziomu gotowości")
         
-        # Wyświetlenie tabeli z wymaganiami
-        st.markdown("---")
+        # Przyciski akcji
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("Sprawdź poziom gotowości", key='check_button'):
+                poziomy = []
+                
+                # Sprawdzanie kolejnych poziomów
+                if sprawdz_poziom_A(liczba_ratownikow, liczba_mlodszych_nurkow, 
+                                   czy_sternik, czy_strazak_logistyk, liczba_slrr, liczba_lodzi):
+                    poziomy.append("A")
+                    
+                if sprawdz_poziom_AB(liczba_ratownikow, liczba_mlodszych_nurkow,
+                                    liczba_nurkow_kierujacych, czy_sternik, czy_strazak_logistyk,
+                                    liczba_slrr, liczba_lodzi):
+                    poziomy.append("AB")
+                    
+                if sprawdz_poziom_ABC(liczba_ratownikow, liczba_mlodszych_nurkow, liczba_nurkow,
+                                     liczba_nurkow_kierujacych, czy_sternik, czy_strazak_logistyk,
+                                     czas_alarmowania, liczba_slrr, liczba_lodzi):
+                    poziomy.append("ABC")
+                    
+                if sprawdz_poziom_ABCchem(liczba_ratownikow, liczba_mlodszych_nurkow, liczba_nurkow,
+                                         liczba_nurkow_kierujacych, czy_sternik, czy_strazak_logistyk,
+                                         czas_alarmowania, czy_wyposazenie_abc_chem, liczba_slrr,
+                                         liczba_lodzi, liczba_srchem):
+                    poziomy.append("ABCchem")
+
+                if poziomy:
+                    st.success(f"Grupa spełnia wymagania dla poziomów: {', '.join(poziomy)}")
+                    st.info(f"Najwyższy osiągnięty poziom gotowości: {poziomy[-1]}")
+                    
+                    # Porównanie z gotowością wg rozkazu
+                    if selected_kw and selected_kp_km:
+                        grupa = df_grupy[(df_grupy['kw'] == selected_kw) & (df_grupy['kp_km'] == selected_kp_km)]
+                        if not grupa.empty:
+                            gotowosc_rozkaz = grupa.iloc[0]['gotowosc_rozkaz']
+                            if poziomy[-1] == gotowosc_rozkaz:
+                                st.success("✅ Grupa utrzymuje poziom gotowości zgodny z rozkazem")
+                            elif poziomy[-1] > gotowosc_rozkaz:
+                                st.success("✅ Grupa przekracza wymagany poziom gotowości")
+                            else:
+                                st.warning("⚠️ Grupa nie osiąga wymaganego poziomu gotowości")
+                else:
+                    st.error("Grupa nie spełnia wymagań żadnego poziomu gotowości")
+        
+        with col2:
+            if min_wymagania and st.button("Uzupełnij minimalne wymagania", key='fill_button'):
+                for key, value in min_wymagania.items():
+                    setattr(st.session_state, key, value)
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Tabela wymagań
+        st.markdown('<div class="section">', unsafe_allow_html=True)
         pokaz_tabele_wymagan()
+        st.markdown('</div>', unsafe_allow_html=True)
     
     elif menu_option == "Algorytmika SGRW-N":
-        st.title("Algorytmika SGRW-N")
+        st.markdown('<h1>Algorytmika SGRW-N</h1>', unsafe_allow_html=True)
+        st.markdown('<div class="section">', unsafe_allow_html=True)
         algorytmika_content = load_markdown_file('algorytmika.md')
         st.markdown(algorytmika_content)
-        
+        st.markdown('</div>', unsafe_allow_html=True)
+    
     else:  # Autorzy
-        st.title("Autorzy Systemu")
+        st.markdown('<h1>Autorzy Systemu</h1>', unsafe_allow_html=True)
+        st.markdown('<div class="section">', unsafe_allow_html=True)
         autorzy_content = load_markdown_file('autorzy.md')
         st.markdown(autorzy_content)
+        st.markdown('</div>', unsafe_allow_html=True)
     
-    # Wyświetlenie stopki
     show_footer()
 
 if __name__ == "__main__":
-    # Konfiguracja strony
     st.set_page_config(
         page_title="System Monitorowania SGRW-N",
         page_icon="🚒",
-        layout="wide"
+        layout="wide",
+        initial_sidebar_state="expanded"
     )
     main() 
