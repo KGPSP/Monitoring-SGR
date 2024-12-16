@@ -304,7 +304,8 @@ def main():
     menu_option = st.sidebar.radio("", 
                                  ["Monitoring SGRW-N",
                                   "Monitoring SGRW", 
-                                  "Algorytmika SGRW-N",
+                                  "Algorytm SGRW-N",
+                                  "Algorytm SGRW",
                                   "Autorzy"])
     
     # Link do GitHub
@@ -662,8 +663,15 @@ def main():
         pokaz_tabele_wymagan_sgrw()
         st.markdown('</div>', unsafe_allow_html=True)
     
-    elif menu_option == "Algorytmika SGRW-N":
-        st.markdown('<h1>Algorytmika SGRW-N</h1>', unsafe_allow_html=True)
+    elif menu_option == "Algorytm SGRW":
+        st.markdown('<h1>Algorytm SGRW</h1>', unsafe_allow_html=True)
+        st.markdown('<div class="section">', unsafe_allow_html=True)
+        sgrw_content = load_markdown_file('sgrwys.md')
+        st.markdown(sgrw_content)
+        st.markdown('</div>', unsafe_allow_html=True)
+    
+    elif menu_option == "Algorytm SGRW-N":
+        st.markdown('<h1>Algorytm SGRW-N</h1>', unsafe_allow_html=True)
         st.markdown('<div class="section">', unsafe_allow_html=True)
         algorytmika_content = load_markdown_file('algorytmika.md')
         st.markdown(algorytmika_content)
